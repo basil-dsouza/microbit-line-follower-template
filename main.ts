@@ -13,6 +13,24 @@ let prev_display_direction = ""
 let speed = 120
 let speed_turn_offset = 30
 serial.redirectToUSB()
+/**
+ * Guide:
+ * 
+ * on start: Adjust speed (default: 120) and speed_turn_offset (default: 30)
+ * 
+ * In "forever" loop - Simple Version
+ * 
+ * * Call "Update_Sensor" Function (Already done in sample)
+ * 
+ * * Check Sensor Variables (left_sensor / middle_sensor / right_sensor) and
+ * 
+ * * Decide (using "Logic" section) on which direction the robot moves based on sensor input
+ * 
+ * Set direction variable to: FORWARD / REVERSE / TRAVERSE_LEFT / TRAVERSE_RIGHT / ROTATE_CLOCKWISE / ROTATE_COUNTERCLOCKWISE / STOP
+ */
+basic.forever(function () {
+    Update_Sensor()
+})
 // Advanced - Can Ignore for now
 basic.forever(function () {
     start_time = control.millis()
@@ -55,24 +73,6 @@ basic.forever(function () {
             motor.motorStopAll()
         }
     }
-})
-/**
- * Guide:
- * 
- * on start: Adjust speed (default: 120) and speed_turn_offset (default: 30)
- * 
- * In "forever" loop - Simple Version
- * 
- * * Call "Update_Sensor" Function (Already done in sample)
- * 
- * * Check Sensor Variables (left_sensor / middle_sensor / right_sensor) and
- * 
- * * Decide (using "Logic" section) on which direction the robot moves based on sensor input
- * 
- * Set direction variable to: FORWARD / REVERSE / TRAVERSE_LEFT / TRAVERSE_RIGHT / ROTATE_CLOCKWISE / ROTATE_COUNTERCLOCKWISE / STOP
- */
-basic.forever(function () {
-    Update_Sensor()
 })
 basic.forever(function () {
     if (prev_display_direction != direction) {
