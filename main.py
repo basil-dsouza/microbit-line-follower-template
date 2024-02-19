@@ -1,57 +1,46 @@
+# Guide:
+# 
+# on start: Adjust speed and speed_turn_offset
+# 
+# In "forever" loop - Simple Version
+# 
+# Call "Update_Sensor" Function (Already done in sample)
+# 
+# Check Sensor Variables (left_sensor / middle_sensor / right_sensor) and
+# 
+# Decide (using "Logic" section) on which direction the robot moves based on sensor input
+# 
+# Set direction variable to: FORWARD / REVERSE / TRAVERSE_LEFT / TRAVERSE_RIGHT / ROTATE_CLOCKWISE / ROTATE_COUNTERCLOCKWISE / STOP
 def Update_Sensor():
     global left_sensor, middle_sensor, right_sensor
-    if True:
-        left_sensor = pins.digital_read_pin(DigitalPin.P0)
-        middle_sensor = pins.digital_read_pin(DigitalPin.P1)
-        right_sensor = pins.digital_read_pin(DigitalPin.P2)
-    else:
-        left_sensor = pins.digital_read_pin(DigitalPin.P12)
-        middle_sensor = pins.digital_read_pin(DigitalPin.P1)
-        right_sensor = pins.digital_read_pin(DigitalPin.P13)
-"""
-
-THICK / THIN
-
-"""
+    left_sensor = max(pins.digital_read_pin(DigitalPin.P2),
+        pins.digital_read_pin(DigitalPin.P13))
+    middle_sensor = pins.digital_read_pin(DigitalPin.P1)
+    right_sensor = max(pins.digital_read_pin(DigitalPin.P0),
+        pins.digital_read_pin(DigitalPin.P12))
 prev_direction = ""
 start_time = 0
-direction = ""
 right_sensor = 0
 middle_sensor = 0
 left_sensor = 0
-line_follower = True
-line_size = "THICK"
-speed_fast = 255
-speed_slow = 100
-speed_turn_offset = 50
+prev_display_direction = ""
+speed = 120
+speed_turn_offset = 30
 serial.redirect_to_usb()
-"""
-
-Use: FORWARD / REVERSE / TRAVERSE_LEFT / TRAVERSE_RIGHT / ROTATE_CLOCKWISE / ROTATE_COUNTERCLOCKWISE / STOP
-
-"""
 
 def on_forever():
-    global direction
-    if line_follower:
-        if middle_sensor == 1:
-            direction = "FORWARD"
-        elif right_sensor == 1:
-            direction = "ROTATE_CLOCKWISE"
-        elif left_sensor == 1:
-            direction = "ROTATE_COUNTERCLOCKWISE"
-        else:
-            direction = "STOP"
+    Update_Sensor()
 basic.forever(on_forever)
 
-"""
-
-Advanced - Can Ignore for now
-
-"""
-
 def on_forever2():
-    global start_time, prev_direction
+    pass
+basic.forever(on_forever2)
+
+# Advanced - Can Ignore for now
+
+def on_forever3():
+    global start_time, speed, prev_direction
+    direction = ""
     start_time = control.millis()
     if prev_direction != direction:
         speed = 0
@@ -107,4 +96,4 @@ def on_forever2():
             motor.motor_stop_all()
         else:
             motor.motor_stop_all()
-basic.forever(on_forever2)
+basic.forever(on_forever3)

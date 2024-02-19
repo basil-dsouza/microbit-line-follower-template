@@ -1,61 +1,22 @@
 function Update_Sensor () {
-    if (true) {
-        left_sensor = pins.digitalReadPin(DigitalPin.P0)
-        middle_sensor = pins.digitalReadPin(DigitalPin.P1)
-        right_sensor = pins.digitalReadPin(DigitalPin.P2)
-    } else {
-        left_sensor = pins.digitalReadPin(DigitalPin.P12)
-        middle_sensor = pins.digitalReadPin(DigitalPin.P1)
-        right_sensor = pins.digitalReadPin(DigitalPin.P13)
-    }
+    left_sensor = Math.max(pins.digitalReadPin(DigitalPin.P2), pins.digitalReadPin(DigitalPin.P13))
+    middle_sensor = pins.digitalReadPin(DigitalPin.P1)
+    right_sensor = Math.max(pins.digitalReadPin(DigitalPin.P0), pins.digitalReadPin(DigitalPin.P12))
 }
-/**
- * Guide:
- * 
- * on start:
- * 
- * * Set line_size to THICK or THIN based on how wide the line is
- * 
- * * Ensure line_follower is true
- * 
- * In "forever" loop - Simple Version
- * 
- * * Call "Update_Sensor" Function (Already done in sample)
- * 
- * * Check Sensor Variables (left_sensor / middle_sensor / right_sensor) and 
- * 
- * decide (using "Logic" section) on which direction the robot moves based on sensor input
- * 
- * Set direction variable to: FORWARD / REVERSE / TRAVERSE_LEFT / TRAVERSE_RIGHT / ROTATE_CLOCKWISE / ROTATE_COUNTERCLOCKWISE / STOP
- * 
- * For 
- * 
- * *
- */
-/**
- * THICK / THIN
- */
-let speed = 0
+let direction = ""
 let prev_direction = ""
 let start_time = 0
 let right_sensor = 0
 let middle_sensor = 0
 let left_sensor = 0
-let line_follower = true
-let line_size = "THICK"
-let speed_fast = 255
-let speed_slow = 100
-let speed_turn_offset = 50
+let prev_display_direction = ""
+let speed = 120
+let speed_turn_offset = 30
 serial.redirectToUSB()
-basic.forever(function () {
-    Update_Sensor()
-})
 // Advanced - Can Ignore for now
 basic.forever(function () {
-    let direction = ""
     start_time = control.millis()
     if (prev_direction != direction) {
-        speed = 0
         prev_direction = direction
         serial.writeLine("Direction:" + direction)
         if (direction == "FORWARD") {
@@ -92,6 +53,44 @@ basic.forever(function () {
             motor.motorStopAll()
         } else {
             motor.motorStopAll()
+        }
+    }
+})
+/**
+ * Guide:
+ * 
+ * on start: Adjust speed (default: 120) and speed_turn_offset (default: 30)
+ * 
+ * In "forever" loop - Simple Version
+ * 
+ * * Call "Update_Sensor" Function (Already done in sample)
+ * 
+ * * Check Sensor Variables (left_sensor / middle_sensor / right_sensor) and
+ * 
+ * * Decide (using "Logic" section) on which direction the robot moves based on sensor input
+ * 
+ * Set direction variable to: FORWARD / REVERSE / TRAVERSE_LEFT / TRAVERSE_RIGHT / ROTATE_CLOCKWISE / ROTATE_COUNTERCLOCKWISE / STOP
+ */
+basic.forever(function () {
+    Update_Sensor()
+})
+basic.forever(function () {
+    if (prev_display_direction != direction) {
+        prev_display_direction = direction
+        if (direction == "FORWARD") {
+            basic.showArrow(ArrowNames.North)
+        } else if (direction == "REVERSE") {
+            basic.showArrow(ArrowNames.South)
+        } else if (direction == "ROTATE_CLOCKWISE") {
+            basic.showArrow(ArrowNames.NorthWest)
+        } else if (direction == "ROTATE_COUNTERCLOCKWISE") {
+            basic.showArrow(ArrowNames.NorthEast)
+        } else if (direction == "TRAVERSE_LEFT") {
+            basic.showArrow(ArrowNames.East)
+        } else if (direction == "TRAVERSE_RIGHT") {
+            basic.showArrow(ArrowNames.West)
+        } else if (direction == "STOP") {
+            basic.showIcon(IconNames.Chessboard)
         }
     }
 })
