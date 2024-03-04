@@ -1,39 +1,24 @@
-function Update_Sensor () {
-    left_sensor = Math.max(pins.digitalReadPin(DigitalPin.P2), pins.digitalReadPin(DigitalPin.P13))
-    middle_sensor = pins.digitalReadPin(DigitalPin.P1)
-    right_sensor = Math.max(pins.digitalReadPin(DigitalPin.P0), pins.digitalReadPin(DigitalPin.P12))
-}
-let direction = ""
-let prev_direction = ""
-let start_time = 0
-let right_sensor = 0
-let middle_sensor = 0
-let left_sensor = 0
-let prev_display_direction = ""
-let speed = 120
-let speed_turn_offset = 30
-serial.redirectToUSB()
 /**
  * Guide:
  * 
- * on start: Adjust speed (default: 120) and speed_turn_offset (default: 30)
+ * on start: Adjust speed (default: 150)
  * 
- * In "forever" loop - Simple Version
+ * In "Control_Robot" function
  * 
- * * Call "Update_Sensor" Function (Already done in sample)
- * 
- * * Check Sensor Variables (left_sensor / middle_sensor / right_sensor) and
+ * * Check Sensor Variables (left_outer / left / middle / right / right_outer)
  * 
  * * Decide (using "Logic" section) on which direction the robot moves based on sensor input
  * 
- * Set direction variable to: FORWARD / REVERSE / TRAVERSE_LEFT / TRAVERSE_RIGHT / ROTATE_CLOCKWISE / ROTATE_COUNTERCLOCKWISE / STOP
+ * Set control_direction variable to: FORWARD / REVERSE / TRAVERSE_LEFT / TRAVERSE_RIGHT / ROTATE_CLOCKWISE / ROTATE_COUNTERCLOCKWISE / STOP
  */
-basic.forever(function () {
-    Update_Sensor()
-})
-// Advanced - Can Ignore for now
-basic.forever(function () {
+function Update_Sensor () {
+    left_sensor_state = Math.max(pins.digitalReadPin(DigitalPin.P2), pins.digitalReadPin(DigitalPin.P13))
+    middle_sensor_state = pins.digitalReadPin(DigitalPin.P1)
+    right_sensor_state = Math.max(pins.digitalReadPin(DigitalPin.P0), pins.digitalReadPin(DigitalPin.P12))
+}
+function Move_Robot (move_direction: string) {
     start_time = control.millis()
+    direction = move_direction
     if (prev_direction != direction) {
         prev_direction = direction
         serial.writeLine("Direction:" + direction)
@@ -73,9 +58,30 @@ basic.forever(function () {
             motor.motorStopAll()
         }
     }
+}
+function Control_Robot (left_outer: number, left: number, middle: number, right: number, right_outer: number) {
+	
+}
+let prev_direction = ""
+let direction = ""
+let start_time = 0
+let right_sensor_state = 0
+let middle_sensor_state = 0
+let left_sensor_state = 0
+let speed_turn_offset = 0
+let speed = 0
+let prev_display_direction = ""
+speed = 150
+speed_turn_offset = 30
+let enable_display = false
+serial.redirectToUSB()
+basic.forever(function () {
+    let control_direction = ""
+    Control_Robot(pins.digitalReadPin(DigitalPin.P2), pins.digitalReadPin(DigitalPin.P13), pins.digitalReadPin(DigitalPin.P1), pins.digitalReadPin(DigitalPin.P12), pins.digitalReadPin(DigitalPin.P0))
+    Move_Robot(control_direction)
 })
 basic.forever(function () {
-    if (prev_display_direction != direction) {
+    if (enable_display && prev_display_direction != direction) {
         prev_display_direction = direction
         if (direction == "FORWARD") {
             basic.showArrow(ArrowNames.North)
